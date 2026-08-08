@@ -1,0 +1,11 @@
+.DS_Store
+
+# Generated build output (self-contained copy for the shared Claude Artifact
+# link — fonts/CSS/JS/image/video all inlined as base64). Regenerated from
+# index.html/css/js/assets whenever the artifact link needs an update.
+# Not a source file — never hand-edit it.
+artifact-preview.html
+
+# Archived design exploration (rejected illustrated-figure directions).
+# Kept locally for history, not part of the live site.
+design-previews.html
