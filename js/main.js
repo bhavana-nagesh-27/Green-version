@@ -3,11 +3,13 @@
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  initFaqAccordion();
-  initCarousel();
-  initTallyModal();
-  initInstagramExitIntent();
-  initSocialProofToast();
+  [initFaqAccordion, initBookingModal, initInstagramExitIntent, initSocialProofToast].forEach((init) => {
+    try {
+      init();
+    } catch (err) {
+      console.error(`${init.name} failed to initialize:`, err);
+    }
+  });
 });
 
 /* ---------- FAQ accordion ---------- */
@@ -22,46 +24,80 @@ function initFaqAccordion() {
   });
 }
 
-/* ---------- Before/after carousel ---------- */
-function initCarousel() {
-  const track = document.getElementById('ba-carousel');
-  const prev = document.getElementById('ba-prev');
-  const next = document.getElementById('ba-next');
-  if (!track) return;
-
-  const scrollAmount = 280;
-  prev.addEventListener('click', () => track.scrollBy({ left: -scrollAmount, behavior: 'smooth' }));
-  next.addEventListener('click', () => track.scrollBy({ left: scrollAmount, behavior: 'smooth' }));
-}
-
-/* ---------- Tally booking modal ----------
-   Replace TALLY_FORM_ID below with your real Tally form ID once created,
-   e.g. "https://tally.so/embed/XXXXXX" — until then the modal shows a placeholder.
+/* ---------- Booking / application modal ----------
+   Native application form with conditional fields. There is no backend wired
+   up yet — on submit, the collected data is only logged to the console and
+   the success message is shown. Replace the TODO inside the submit handler
+   below with a real fetch() call (Formspree, Google Sheets webhook, etc.)
+   once a submission endpoint exists, so applications actually reach the team.
 */
-const TALLY_FORM_ID = null; // e.g. "abc123"
-
-function initTallyModal() {
-  const overlay = document.getElementById('tally-modal-overlay');
-  const closeBtn = document.getElementById('tally-modal-close');
-  const placeholder = document.getElementById('tally-placeholder');
+function initBookingModal() {
+  const overlay = document.getElementById('booking-modal-overlay');
+  const closeBtn = document.getElementById('booking-modal-close');
   const triggers = document.querySelectorAll('.book-call-trigger');
+  const formView = document.getElementById('booking-form-view');
+  const successView = document.getElementById('booking-success-view');
+  const successCloseBtn = document.getElementById('booking-success-close');
+  const form = document.getElementById('application-form');
+  const yesFields = document.getElementById('learnt-yes-fields');
+  const noFields = document.getElementById('learnt-no-fields');
+  if (!overlay || !closeBtn || !form) return;
 
-  triggers.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      overlay.classList.add('visible');
+  // Disabled fields are excluded from FormData automatically — needed here since
+  // both branches share a "reason" field name, so only the visible one should submit.
+  function setGroupActive(group, active) {
+    group.classList.toggle('hidden', !active);
+    group.querySelectorAll('input, textarea').forEach((el) => { el.disabled = !active; });
+  }
 
-      if (TALLY_FORM_ID && !overlay.querySelector('iframe')) {
-        const iframe = document.createElement('iframe');
-        iframe.src = `https://tally.so/embed/${TALLY_FORM_ID}?alignLeft=1&hideTitle=1&transparentBackground=1`;
-        overlay.querySelector('.modal-box').appendChild(iframe);
-        placeholder.style.display = 'none';
+  function resetModal() {
+    form.reset();
+    setGroupActive(yesFields, false);
+    setGroupActive(noFields, false);
+    successView.classList.add('hidden');
+    formView.classList.remove('hidden');
+  }
+
+  function openModal() {
+    overlay.classList.add('visible');
+  }
+
+  function closeModal() {
+    overlay.classList.remove('visible');
+    resetModal();
+  }
+
+  triggers.forEach((btn) => btn.addEventListener('click', openModal));
+  closeBtn.addEventListener('click', closeModal);
+  successCloseBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
+
+  form.querySelectorAll('input[name="learnt_before"]').forEach((radio) => {
+    radio.addEventListener('change', () => {
+      const showYes = radio.value === 'yes' && radio.checked;
+      const showNo = radio.value === 'no' && radio.checked;
+      if (showYes) {
+        setGroupActive(yesFields, true);
+        setGroupActive(noFields, false);
+      } else if (showNo) {
+        setGroupActive(noFields, true);
+        setGroupActive(yesFields, false);
       }
     });
   });
 
-  closeBtn.addEventListener('click', () => overlay.classList.remove('visible'));
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.classList.remove('visible');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+
+    const data = Object.fromEntries(new FormData(form).entries());
+    // TODO: send `data` to a real backend once a submission endpoint exists.
+    console.log('Application submitted (not yet wired to a backend):', data);
+
+    formView.classList.add('hidden');
+    successView.classList.remove('hidden');
   });
 }
 
@@ -74,6 +110,7 @@ function initInstagramExitIntent() {
   const overlay = document.getElementById('ig-modal-overlay');
   const closeBtn = document.getElementById('ig-modal-close');
   const link = document.getElementById('ig-modal-link');
+  if (!overlay || !closeBtn || !link) return;
 
   link.href = INSTAGRAM_URL;
 
@@ -120,6 +157,28 @@ function initSocialProofToast() {
 
   let index = 0;
 
+  // Clears the sticky nav header (~90px) and stays clear of the bottom edge,
+  // so the toast lands somewhere within whatever section is currently in view.
+  const HEADER_CLEARANCE = 100;
+  const BOTTOM_CLEARANCE = 140;
+
+  function positionRandomly() {
+    const maxTop = Math.max(HEADER_CLEARANCE, window.innerHeight - BOTTOM_CLEARANCE);
+    const top = Math.round(HEADER_CLEARANCE + Math.random() * (maxTop - HEADER_CLEARANCE));
+    toast.style.top = `${top}px`;
+    return top;
+  }
+
+  // Samples the element the toast is about to land on (using the resting
+  // top/left, not the current translated-offscreen position) so text stays
+  // legible whether it lands on a light or dark ("on-dark") section.
+  function updateContrastForBackground(top) {
+    const left = parseFloat(getComputedStyle(toast).left) || 24;
+    const el = document.elementFromPoint(left + 20, top + 20);
+    const isDark = !!(el && el.closest('.on-dark'));
+    toast.classList.toggle('on-dark-bg', isDark);
+  }
+
   function showNext() {
     const item = SOCIAL_PROOF_ITEMS[index % SOCIAL_PROOF_ITEMS.length];
     nameEl.textContent = item.name;
@@ -127,6 +186,8 @@ function initSocialProofToast() {
     locEl.textContent = item.loc;
     avatarEl.textContent = item.initial;
 
+    const top = positionRandomly();
+    updateContrastForBackground(top);
     toast.classList.add('visible');
     index++;
 
