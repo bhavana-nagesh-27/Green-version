@@ -5,6 +5,7 @@
 # index.html/css/js/assets whenever the artifact link needs an update.
 # Not a source file — never hand-edit it.
 artifact-preview.html
+artifact-preview-v2.html
 
 # Archived design exploration (rejected illustrated-figure directions).
 # Kept locally for history, not part of the live site.

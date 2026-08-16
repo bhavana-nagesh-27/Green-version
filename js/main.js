@@ -3,7 +3,7 @@
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  [initFaqAccordion, initBookingModal, initInstagramExitIntent, initSocialProofToast].forEach((init) => {
+  [initScrollProgress, initFaqAccordion, initTestimonialCarousel, initBookingModal, initInstagramExitIntent, initSocialProofToast].forEach((init) => {
     try {
       init();
     } catch (err) {
@@ -11,6 +11,76 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+/* ---------- Site-wide reading/scroll progress bar ---------- */
+function initScrollProgress() {
+  const bar = document.getElementById('page-scroll-progress');
+  if (!bar) return;
+
+  function update() {
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+    bar.style.width = `${Math.min(100, Math.max(0, pct))}%`;
+  }
+
+  update();
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+}
+
+/* ---------- Student results: sliding testimonial carousel ----------
+   Videos beyond the first few load lazily as their card scrolls into view,
+   rather than all at once — with 9 clips in the track, eagerly preloading
+   every video on page load previously froze the tab.
+*/
+function initTestimonialCarousel() {
+  const track = document.getElementById('testimonial-track');
+  const prevBtn = document.getElementById('testimonial-prev');
+  const nextBtn = document.getElementById('testimonial-next');
+  if (!track) return;
+
+  const SCROLL_STEP = 280;
+  prevBtn?.addEventListener('click', () => track.scrollBy({ left: -SCROLL_STEP, behavior: 'smooth' }));
+  nextBtn?.addEventListener('click', () => track.scrollBy({ left: SCROLL_STEP, behavior: 'smooth' }));
+
+  // No native <video controls> here (no seek bar) — just a minimal custom
+  // play/pause toggle, since the built-in scrubber was explicitly not wanted.
+  track.querySelectorAll('.testimonial-card.has-video').forEach((card) => {
+    const video = card.querySelector('video');
+    const playBtn = card.querySelector('.tc-play-btn');
+    if (!video || !playBtn) return;
+
+    const toggle = () => {
+      if (video.paused) video.play(); else video.pause();
+    };
+    playBtn.addEventListener('click', toggle);
+    video.addEventListener('click', toggle);
+    video.addEventListener('play', () => card.classList.add('playing'));
+    video.addEventListener('pause', () => card.classList.remove('playing'));
+    video.addEventListener('ended', () => card.classList.remove('playing'));
+  });
+
+  const lazyVideos = track.querySelectorAll('video[data-src]');
+  if (!lazyVideos.length) return;
+
+  if (!('IntersectionObserver' in window)) {
+    lazyVideos.forEach((video) => { video.src = video.dataset.src; video.preload = 'metadata'; });
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      const video = entry.target;
+      video.src = video.dataset.src;
+      video.preload = 'metadata';
+      delete video.dataset.src;
+      observer.unobserve(video);
+    });
+  }, { root: track, rootMargin: '0px 400px' });
+
+  lazyVideos.forEach((video) => observer.observe(video));
+}
 
 /* ---------- FAQ accordion ---------- */
 function initFaqAccordion() {
@@ -39,9 +109,42 @@ function initBookingModal() {
   const successView = document.getElementById('booking-success-view');
   const successCloseBtn = document.getElementById('booking-success-close');
   const form = document.getElementById('application-form');
+  const step1 = document.getElementById('form-step-1');
+  const step2 = document.getElementById('form-step-2');
+  const nextBtn = document.getElementById('step1-next');
+  const backBtn = document.getElementById('step2-back');
   const yesFields = document.getElementById('learnt-yes-fields');
   const noFields = document.getElementById('learnt-no-fields');
+  const progressFills = form ? form.querySelectorAll('.form-progress-fill') : [];
   if (!overlay || !closeBtn || !form) return;
+
+  // "reason" is a single logical field shared by both learnt_before branches —
+  // counted once here regardless of which branch's textarea currently holds it.
+  const REQUIRED_FIELD_NAMES = [
+    'first_name', 'last_name', 'email', 'dob', 'state',
+    'country', 'country_code', 'contact_number', 'learnt_before', 'reason',
+  ];
+
+  function updateProgress() {
+    const filled = REQUIRED_FIELD_NAMES.filter((name) => {
+      const field = form.elements[name];
+      if (!field) return false;
+      // form.elements[name] returns a RadioNodeList for ANY group of elements
+      // sharing a name — not just actual radio buttons (e.g. the two "reason"
+      // textareas). Only radios have a meaningful .checked; other field types
+      // in the group are checked by value instead.
+      if (field instanceof RadioNodeList) {
+        return Array.from(field).some((el) => {
+          if (el.disabled) return false;
+          return el.type === 'radio' ? el.checked : el.value.trim() !== '';
+        });
+      }
+      if (field.disabled) return false;
+      return field.value.trim() !== '';
+    }).length;
+    const pct = `${Math.round((filled / REQUIRED_FIELD_NAMES.length) * 100)}%`;
+    progressFills.forEach((fill) => { fill.style.width = pct; });
+  }
 
   // Disabled fields are excluded from FormData automatically — needed here since
   // both branches share a "reason" field name, so only the visible one should submit.
@@ -50,12 +153,24 @@ function initBookingModal() {
     group.querySelectorAll('input, textarea').forEach((el) => { el.disabled = !active; });
   }
 
+  function goToStep1() {
+    step2.classList.add('hidden');
+    step1.classList.remove('hidden');
+  }
+
+  function goToStep2() {
+    step1.classList.add('hidden');
+    step2.classList.remove('hidden');
+  }
+
   function resetModal() {
     form.reset();
     setGroupActive(yesFields, false);
     setGroupActive(noFields, false);
+    goToStep1();
     successView.classList.add('hidden');
     formView.classList.remove('hidden');
+    updateProgress();
   }
 
   function openModal() {
@@ -74,6 +189,21 @@ function initBookingModal() {
     if (e.target === overlay) closeModal();
   });
 
+  // form.reportValidity() checks every field regardless of visibility, so it can't
+  // be used here — it would block on step 2's fields before the user ever sees them.
+  // Scope validation to step 1's own fields instead.
+  nextBtn.addEventListener('click', () => {
+    const step1Fields = Array.from(step1.querySelectorAll('input, textarea, select'));
+    const firstInvalid = step1Fields.find((field) => !field.checkValidity());
+    if (firstInvalid) {
+      firstInvalid.reportValidity();
+      return;
+    }
+    goToStep2();
+  });
+
+  backBtn.addEventListener('click', goToStep1);
+
   form.querySelectorAll('input[name="learnt_before"]').forEach((radio) => {
     radio.addEventListener('change', () => {
       const showYes = radio.value === 'yes' && radio.checked;
@@ -87,6 +217,9 @@ function initBookingModal() {
       }
     });
   });
+
+  form.addEventListener('input', updateProgress);
+  form.addEventListener('change', updateProgress);
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();

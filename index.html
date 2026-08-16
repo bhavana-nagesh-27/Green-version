@@ -12,6 +12,7 @@
 </head>
 <body>
 <div class="grain-overlay"></div>
+<div id="page-scroll-progress" aria-hidden="true"></div>
 
 <!-- ===== NAV ===== -->
 <header class="site-header">
@@ -53,42 +54,72 @@
   <div class="container">
     <h2 class="section-heading center">Hear From Our Students</h2>
 
-    <div class="testimonial-grid testimonial-grid-6">
-      <div class="testimonial-card has-video">
-        <video src="assets/videos/anasuya-mukherjee.mp4" controls playsinline preload="metadata"></video>
-        <div class="tc-overlay">
-          <div class="tc-name">Anasuya Mukherjee 🇮🇳</div>
+    <div class="testimonial-carousel-wrap">
+      <div class="testimonial-track" id="testimonial-track">
+        <div class="testimonial-card has-video">
+          <video src="assets/videos/ankita-usa.mp4" playsinline preload="metadata"></video>
+          <button class="tc-play-btn" type="button" aria-label="Play video"></button>
+          <div class="tc-overlay">
+            <div class="tc-name">Ankita 🇺🇸</div>
+          </div>
+        </div>
+        <div class="testimonial-card has-video">
+          <video src="assets/videos/divya-shakti-south-africa.mp4" playsinline preload="metadata"></video>
+          <button class="tc-play-btn" type="button" aria-label="Play video"></button>
+          <div class="tc-overlay">
+            <div class="tc-name">Divya Shakti 🇿🇦</div>
+          </div>
+        </div>
+        <div class="testimonial-card has-video">
+          <video src="assets/videos/richa-amehra-dubai.mp4" playsinline preload="metadata"></video>
+          <button class="tc-play-btn" type="button" aria-label="Play video"></button>
+          <div class="tc-overlay">
+            <div class="tc-name">Richa Amehra 🇦🇪</div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="tc-overlay">
+            <div class="tc-name">Smruthi 🇲🇽</div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="tc-overlay">
+            <div class="tc-name">Vidyalaxmi Srinath 🇸🇬</div>
+          </div>
+        </div>
+        <div class="testimonial-card has-video">
+          <video data-src="assets/videos/anasuya-mukherjee.mp4" playsinline preload="none"></video>
+          <button class="tc-play-btn" type="button" aria-label="Play video"></button>
+          <div class="tc-overlay">
+            <div class="tc-name">Anasuya Mukherjee 🇮🇳</div>
+          </div>
+        </div>
+        <div class="testimonial-card has-video">
+          <video data-src="assets/videos/vaishnavi-avadhoot.mp4" playsinline preload="none"></video>
+          <button class="tc-play-btn" type="button" aria-label="Play video"></button>
+          <div class="tc-overlay">
+            <div class="tc-name">Vaishnavi Avadhoot 🇮🇳</div>
+          </div>
+        </div>
+        <div class="testimonial-card has-video">
+          <video data-src="assets/videos/manisha-murmu.mp4" playsinline preload="none"></video>
+          <button class="tc-play-btn" type="button" aria-label="Play video"></button>
+          <div class="tc-overlay">
+            <div class="tc-name">Manisha Murmu 🇮🇳</div>
+          </div>
+        </div>
+        <div class="testimonial-card has-video">
+          <video data-src="assets/videos/tisha-saha.mp4" playsinline preload="none"></video>
+          <button class="tc-play-btn" type="button" aria-label="Play video"></button>
+          <div class="tc-overlay">
+            <div class="tc-name">Tisha Saha 🇮🇳</div>
+          </div>
         </div>
       </div>
-      <div class="testimonial-card has-video">
-        <video src="assets/videos/vaishnavi-avadhoot.mp4" controls playsinline preload="metadata"></video>
-        <div class="tc-overlay">
-          <div class="tc-name">Vaishnavi Avadhoot 🇮🇳</div>
-        </div>
-      </div>
-      <div class="testimonial-card has-video">
-        <video src="assets/videos/manisha-murmu.mp4" controls playsinline preload="metadata"></video>
-        <div class="tc-overlay">
-          <div class="tc-name">Manisha Murmu 🇮🇳</div>
-        </div>
-      </div>
-      <div class="testimonial-card has-video">
-        <video src="assets/videos/ankita-usa.mp4" controls playsinline preload="metadata"></video>
-        <div class="tc-overlay">
-          <div class="tc-name">Ankita 🇺🇸</div>
-        </div>
-      </div>
-      <div class="testimonial-card has-video">
-        <video src="assets/videos/divya-shakti-south-africa.mp4" controls playsinline preload="metadata"></video>
-        <div class="tc-overlay">
-          <div class="tc-name">Divya Shakti 🇿🇦</div>
-        </div>
-      </div>
-      <div class="testimonial-card has-video">
-        <video src="assets/videos/richa-amehra-dubai.mp4" controls playsinline preload="metadata"></video>
-        <div class="tc-overlay">
-          <div class="tc-name">Richa Amehra 🇦🇪</div>
-        </div>
+
+      <div class="testimonial-nav">
+        <button class="carousel-btn" id="testimonial-prev" type="button" aria-label="Previous students">←</button>
+        <button class="carousel-btn" id="testimonial-next" type="button" aria-label="Next students">→</button>
       </div>
     </div>
   </div>
@@ -130,7 +161,7 @@
   <div class="nataraja-mark left" aria-hidden="true"></div>
   <div class="container">
     <div class="eyebrow center">Meet Your Mentor</div>
-    <h2 class="section-heading center">Ranbbir Banerjee</h2>
+    <h2 class="section-heading center"><span class="highlight">Ranbbir Banerjee</span></h2>
     <p class="section-sub center">Founder, Nrityaam — School of Bharatanatyam</p>
 
     <div class="credibility-grid" style="margin-top:50px;">
@@ -256,93 +287,112 @@
     <button class="modal-close" id="booking-modal-close">×</button>
 
     <div id="booking-form-view">
-      <p class="booking-sub">Tell us a bit about yourself so Ranbbir Sir's team can prepare for your call.</p>
-
       <form id="application-form" novalidate>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="f-first-name">First Name</label>
-            <input type="text" id="f-first-name" name="first_name" required>
+        <div class="form-step" id="form-step-1">
+          <div class="form-progress-track"><div class="form-progress-fill"></div></div>
+          <p class="booking-sub">Tell us a bit about yourself so Ranbbir Sir's team can prepare for your call.</p>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-first-name">First Name</label>
+              <input type="text" id="f-first-name" name="first_name" required>
+            </div>
+            <div class="form-group">
+              <label for="f-last-name">Last Name</label>
+              <input type="text" id="f-last-name" name="last_name" required>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="f-last-name">Last Name</label>
-            <input type="text" id="f-last-name" name="last_name" required>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-email">Email</label>
+              <input type="email" id="f-email" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="f-dob">Date of Birth</label>
+              <input type="date" id="f-dob" name="dob" required>
+            </div>
           </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-state">Current State</label>
+              <input type="text" id="f-state" name="state" required>
+            </div>
+            <div class="form-group">
+              <label for="f-country">Country</label>
+              <input type="text" id="f-country" name="country" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-country-code">Country Code</label>
+              <input type="text" id="f-country-code" name="country_code" placeholder="+91" required>
+            </div>
+            <div class="form-group">
+              <label for="f-contact">Contact Number</label>
+              <input type="tel" id="f-contact" name="contact_number" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="f-instagram">Instagram ID <span class="optional-tag">(Optional)</span></label>
+            <input type="text" id="f-instagram" name="instagram_id" placeholder="@yourhandle">
+          </div>
+
+          <div class="form-group">
+            <label>Learnt Bharatanatyam before?</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="learnt_before" value="yes" required>
+                Yes
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="learnt_before" value="no" required>
+                No
+              </label>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-primary btn-block" id="step1-next">Next</button>
         </div>
 
-        <div class="form-group">
-          <label for="f-email">Email</label>
-          <input type="email" id="f-email" name="email" required>
-        </div>
+        <div class="form-step hidden" id="form-step-2">
+          <div class="form-progress-track"><div class="form-progress-fill"></div></div>
+          <p class="booking-sub">Just a couple more details.</p>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="f-state">Current State</label>
-            <input type="text" id="f-state" name="state" required>
+          <div class="conditional-fields hidden" id="learnt-yes-fields">
+            <div class="form-group">
+              <label for="f-guru">Guru</label>
+              <input type="text" id="f-guru" name="guru">
+            </div>
+            <div class="form-group">
+              <label for="f-lessons">Lessons Learnt</label>
+              <input type="text" id="f-lessons" name="lessons_learnt">
+            </div>
+            <div class="form-group">
+              <label for="f-years">Years of Experience</label>
+              <input type="text" id="f-years" name="years_experience">
+            </div>
+            <div class="form-group">
+              <label for="f-reason-yes">Reason for choosing Ranbbir Sir's class?</label>
+              <textarea id="f-reason-yes" name="reason" rows="3" required></textarea>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="f-country">Country</label>
-            <input type="text" id="f-country" name="country" required>
-          </div>
-        </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="f-country-code">Country Code</label>
-            <input type="text" id="f-country-code" name="country_code" placeholder="+91" required>
+          <div class="conditional-fields hidden" id="learnt-no-fields">
+            <div class="form-group">
+              <label for="f-reason">Reason for choosing Ranbbir Sir's class?</label>
+              <textarea id="f-reason" name="reason" rows="3" required></textarea>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="f-contact">Contact Number</label>
-            <input type="tel" id="f-contact" name="contact_number" required>
-          </div>
-        </div>
 
-        <div class="form-group">
-          <label for="f-instagram">Instagram ID <span class="optional-tag">(Optional)</span></label>
-          <input type="text" id="f-instagram" name="instagram_id" placeholder="@yourhandle">
-        </div>
-
-        <div class="form-group">
-          <label>Learnt Bharatanatyam before?</label>
-          <div class="radio-group">
-            <label class="radio-option">
-              <input type="radio" name="learnt_before" value="yes" required>
-              Yes
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="learnt_before" value="no" required>
-              No
-            </label>
+          <div class="form-step-actions">
+            <button type="button" class="btn btn-outline" id="step2-back">Back</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
           </div>
         </div>
-
-        <div class="conditional-fields hidden" id="learnt-yes-fields">
-          <div class="form-group">
-            <label for="f-guru">Guru</label>
-            <input type="text" id="f-guru" name="guru">
-          </div>
-          <div class="form-group">
-            <label for="f-lessons">Lessons Learnt</label>
-            <input type="text" id="f-lessons" name="lessons_learnt">
-          </div>
-          <div class="form-group">
-            <label for="f-years">Years of Experience</label>
-            <input type="text" id="f-years" name="years_experience">
-          </div>
-          <div class="form-group">
-            <label for="f-reason-yes">Reason for choosing Ranbbir Sir's class?</label>
-            <textarea id="f-reason-yes" name="reason" rows="3"></textarea>
-          </div>
-        </div>
-
-        <div class="conditional-fields hidden" id="learnt-no-fields">
-          <div class="form-group">
-            <label for="f-reason">Reason for choosing Ranbbir Sir's class?</label>
-            <textarea id="f-reason" name="reason" rows="3"></textarea>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-block">Submit</button>
       </form>
     </div>
 
