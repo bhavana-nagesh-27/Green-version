@@ -95,12 +95,20 @@ function initFaqAccordion() {
 }
 
 /* ---------- Booking / application modal ----------
-   Native application form with conditional fields. There is no backend wired
-   up yet — on submit, the collected data is only logged to the console and
-   the success message is shown. Replace the TODO inside the submit handler
-   below with a real fetch() call (Formspree, Google Sheets webhook, etc.)
-   once a submission endpoint exists, so applications actually reach the team.
+   Native application form with conditional fields, submitted via
+   FormSubmit.co's AJAX endpoint (https://formsubmit.co) rather than a
+   host-specific integration — this works identically on localhost and on
+   Hostinger (or anywhere else) since it's a plain cross-origin API call,
+   not something that needs server-side processing on this domain. No
+   account or backend code needed.
+
+   First submission to a new destination email requires a one-time opt-in:
+   FormSubmit sends bhavanan.27@gmail.com a confirmation email the first
+   time a submission is attempted, and every submission before that click
+   is silently held rather than delivered. After activating, submissions
+   are emailed there directly.
 */
+const FORM_ENDPOINT = 'https://formsubmit.co/ajax/bhavanan.27@gmail.com';
 function initBookingModal() {
   const overlay = document.getElementById('booking-modal-overlay');
   const closeBtn = document.getElementById('booking-modal-close');
@@ -113,6 +121,8 @@ function initBookingModal() {
   const step2 = document.getElementById('form-step-2');
   const nextBtn = document.getElementById('step1-next');
   const backBtn = document.getElementById('step2-back');
+  const submitBtn = document.getElementById('step2-submit');
+  const errorMsg = document.getElementById('form-error');
   const yesFields = document.getElementById('learnt-yes-fields');
   const noFields = document.getElementById('learnt-no-fields');
   const progressFills = form ? form.querySelectorAll('.form-progress-fill') : [];
@@ -168,6 +178,7 @@ function initBookingModal() {
     setGroupActive(yesFields, false);
     setGroupActive(noFields, false);
     goToStep1();
+    errorMsg.classList.add('hidden');
     successView.classList.add('hidden');
     formView.classList.remove('hidden');
     updateProgress();
@@ -225,12 +236,29 @@ function initBookingModal() {
     e.preventDefault();
     if (!form.reportValidity()) return;
 
-    const data = Object.fromEntries(new FormData(form).entries());
-    // TODO: send `data` to a real backend once a submission endpoint exists.
-    console.log('Application submitted (not yet wired to a backend):', data);
+    errorMsg.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting…';
 
-    formView.classList.add('hidden');
-    successView.classList.remove('hidden');
+    const data = Object.fromEntries(new FormData(form).entries());
+    fetch(FORM_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(data),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`FormSubmit responded ${res.status}`);
+        formView.classList.add('hidden');
+        successView.classList.remove('hidden');
+      })
+      .catch((err) => {
+        console.error('Application submission failed:', err);
+        errorMsg.classList.remove('hidden');
+      })
+      .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit';
+      });
   });
 }
 
@@ -272,21 +300,15 @@ function initInstagramExitIntent() {
 }
 
 /* ---------- Rotating corner social-proof toast ----------
-   Replace with real testimonial snippets (name, message, country) once available.
+   Message content lives in js/message-popup.js (TESTIMONIAL_MESSAGES),
+   loaded before this file — see index.html.
 */
-const SOCIAL_PROOF_ITEMS = [
-  { name: 'A. Sharma', msg: 'Just booked a call with Nrityaam!', loc: 'India', initial: 'A' },
-  { name: 'M. Chen', msg: 'Enrolled in the Bharatanatyam program', loc: 'Singapore', initial: 'M' },
-  { name: 'J. Smith', msg: 'Started their structured training journey', loc: 'USA', initial: 'J' },
-  { name: 'L. Muller', msg: 'Joined the Nrityaam community', loc: 'Germany', initial: 'L' },
-];
-
 function initSocialProofToast() {
   const toast = document.getElementById('social-toast');
   const nameEl = toast.querySelector('.toast-name');
   const msgEl = toast.querySelector('.toast-msg');
-  const locEl = toast.querySelector('.toast-loc');
   const avatarEl = toast.querySelector('.toast-avatar');
+  if (typeof TESTIMONIAL_MESSAGES === 'undefined' || !TESTIMONIAL_MESSAGES.length) return;
 
   let index = 0;
 
@@ -313,11 +335,10 @@ function initSocialProofToast() {
   }
 
   function showNext() {
-    const item = SOCIAL_PROOF_ITEMS[index % SOCIAL_PROOF_ITEMS.length];
+    const item = TESTIMONIAL_MESSAGES[index % TESTIMONIAL_MESSAGES.length];
     nameEl.textContent = item.name;
     msgEl.textContent = `"${item.msg}"`;
-    locEl.textContent = item.loc;
-    avatarEl.textContent = item.initial;
+    avatarEl.textContent = item.name.charAt(0).toUpperCase();
 
     const top = positionRandomly();
     updateContrastForBackground(top);

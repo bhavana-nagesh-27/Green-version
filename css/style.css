@@ -220,6 +220,18 @@ section > .container { position: relative; z-index: 2; }
 
 .logo {
   display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  height: 40px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  display: flex;
   flex-direction: column;
   gap: 2px;
   line-height: 1.1;
@@ -244,6 +256,8 @@ section > .container { position: relative; z-index: 2; }
 
 @media (max-width: 500px) {
   .logo-line2 { display: none; }
+  .nav { padding: 16px 16px; }
+  .nav .book-call-trigger { padding: 12px 18px; font-size: 0.85rem; }
 }
 
 .nav-links {
@@ -272,7 +286,7 @@ section > .container { position: relative; z-index: 2; }
 .hero {
   padding: 70px 0 100px;
   position: relative;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .hero .container {
@@ -747,22 +761,19 @@ html {
 }
 
 #social-toast .toast-name,
-#social-toast .toast-msg,
-#social-toast .toast-loc {
+#social-toast .toast-msg {
   color: #000;
   text-shadow: 0 1px 2px rgba(255,255,255,0.8), 0 0 14px rgba(255,255,255,0.6);
 }
 
 #social-toast.on-dark-bg .toast-name,
-#social-toast.on-dark-bg .toast-msg,
-#social-toast.on-dark-bg .toast-loc {
+#social-toast.on-dark-bg .toast-msg {
   color: #fff;
   text-shadow: 0 1px 2px rgba(0,0,0,0.7), 0 0 14px rgba(0,0,0,0.55);
 }
 
 #social-toast .toast-name { font-weight: 700; font-size: 0.85rem; }
 #social-toast .toast-msg { font-size: 0.8rem; }
-#social-toast .toast-loc { font-size: 0.72rem; font-weight: 600; }
 
 /* exit-intent instagram modal */
 .modal-overlay {
@@ -850,6 +861,16 @@ html {
 #application-form { display: flex; flex-direction: column; gap: 16px; }
 
 .form-step { display: flex; flex-direction: column; gap: 16px; }
+
+.form-error {
+  font-size: 0.85rem;
+  color: #a3401f;
+  background: rgba(163, 64, 31, 0.08);
+  border: 1px solid rgba(163, 64, 31, 0.25);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 0;
+}
 
 .form-step-actions {
   display: flex;
