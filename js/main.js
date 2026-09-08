@@ -103,12 +103,12 @@ function initFaqAccordion() {
    account or backend code needed.
 
    First submission to a new destination email requires a one-time opt-in:
-   FormSubmit sends bhavanan.27@gmail.com a confirmation email the first
+   FormSubmit sends banerjeeranbir32@gmail.com a confirmation email the first
    time a submission is attempted, and every submission before that click
    is silently held rather than delivered. After activating, submissions
    are emailed there directly.
 */
-const FORM_ENDPOINT = 'https://formsubmit.co/ajax/bhavanan.27@gmail.com';
+const FORM_ENDPOINT = 'https://formsubmit.co/ajax/banerjeeranbir32@gmail.com';
 function initBookingModal() {
   const overlay = document.getElementById('booking-modal-overlay');
   const closeBtn = document.getElementById('booking-modal-close');
@@ -132,7 +132,7 @@ function initBookingModal() {
   // counted once here regardless of which branch's textarea currently holds it.
   const REQUIRED_FIELD_NAMES = [
     'first_name', 'last_name', 'email', 'dob', 'state',
-    'country', 'country_code', 'contact_number', 'learnt_before', 'reason',
+    'country', 'contact_number', 'learnt_before', 'reason',
   ];
 
   function updateProgress() {
