@@ -3,7 +3,7 @@
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  [initScrollProgress, initFaqAccordion, initTestimonialCarousel, initBookingModal, initInstagramExitIntent, initSocialProofToast].forEach((init) => {
+  [initScrollProgress, initMobileNav, initFaqAccordion, initTestimonialCarousel, initBookingModal, initInstagramExitIntent].forEach((init) => {
     try {
       init();
     } catch (err) {
@@ -11,6 +11,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+/* ---------- Mobile hamburger nav ---------- */
+function initMobileNav() {
+  const toggle = document.getElementById('nav-toggle');
+  const links = document.getElementById('nav-links');
+  if (!toggle || !links) return;
+
+  function closeMenu() {
+    links.classList.remove('open');
+    toggle.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  toggle.addEventListener('click', () => {
+    const isOpen = links.classList.toggle('open');
+    toggle.classList.toggle('open', isOpen);
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  links.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+
+  document.addEventListener('click', (e) => {
+    if (!links.classList.contains('open')) return;
+    if (links.contains(e.target) || toggle.contains(e.target)) return;
+    closeMenu();
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 860) closeMenu();
+  });
+}
 
 /* ---------- Site-wide reading/scroll progress bar ---------- */
 function initScrollProgress() {
@@ -45,20 +76,38 @@ function initTestimonialCarousel() {
 
   // No native <video controls> here (no seek bar) — just a minimal custom
   // play/pause toggle, since the built-in scrubber was explicitly not wanted.
+  const allVideos = [];
   track.querySelectorAll('.testimonial-card.has-video').forEach((card) => {
     const video = card.querySelector('video');
     const playBtn = card.querySelector('.tc-play-btn');
     if (!video || !playBtn) return;
+    allVideos.push(video);
 
     const toggle = () => {
       if (video.paused) video.play(); else video.pause();
     };
     playBtn.addEventListener('click', toggle);
     video.addEventListener('click', toggle);
-    video.addEventListener('play', () => card.classList.add('playing'));
+    // Only one testimonial should ever play at a time.
+    video.addEventListener('play', () => {
+      allVideos.forEach((other) => { if (other !== video && !other.paused) other.pause(); });
+      card.classList.add('playing');
+    });
     video.addEventListener('pause', () => card.classList.remove('playing'));
     video.addEventListener('ended', () => card.classList.remove('playing'));
   });
+
+  // Pause a playing video once it's mostly scrolled out of view — covers both
+  // vertical page scroll (root: viewport) and the carousel's own horizontal
+  // scroll, since either changes an element's viewport intersection.
+  if (allVideos.length && 'IntersectionObserver' in window) {
+    const visibilityObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.intersectionRatio < 0.3 && !entry.target.paused) entry.target.pause();
+      });
+    }, { threshold: 0.3 });
+    allVideos.forEach((video) => visibilityObserver.observe(video));
+  }
 
   const lazyVideos = track.querySelectorAll('video[data-src]');
   if (!lazyVideos.length) return;
@@ -126,17 +175,44 @@ function initBookingModal() {
   const yesFields = document.getElementById('learnt-yes-fields');
   const noFields = document.getElementById('learnt-no-fields');
   const progressFills = form ? form.querySelectorAll('.form-progress-fill') : [];
+  const dobField = document.getElementById('f-dob');
+  const contactField = document.getElementById('f-contact');
   if (!overlay || !closeBtn || !form) return;
+
+  // Auto-insert the dd.mm.yyyy separators as the user types digits.
+  dobField?.addEventListener('input', () => {
+    const digits = dobField.value.replace(/\D/g, '').slice(0, 8);
+    let formatted = digits.slice(0, 2);
+    if (digits.length > 2) formatted += `.${digits.slice(2, 4)}`;
+    if (digits.length > 4) formatted += `.${digits.slice(4, 8)}`;
+    dobField.value = formatted;
+  });
+
+  // Strip anything but a leading "+" and digits as the user types.
+  contactField?.addEventListener('input', () => {
+    const hasPlus = contactField.value.trim().startsWith('+');
+    const digits = contactField.value.replace(/\D/g, '');
+    contactField.value = (hasPlus ? '+' : '') + digits;
+  });
 
   // "reason" is a single logical field shared by both learnt_before branches —
   // counted once here regardless of which branch's textarea currently holds it.
-  const REQUIRED_FIELD_NAMES = [
+  const BASE_REQUIRED_FIELD_NAMES = [
     'first_name', 'last_name', 'email', 'dob', 'state',
     'country', 'contact_number', 'learnt_before', 'reason',
   ];
+  // Guru/lessons/years are only required (and only rendered/enabled) when the
+  // "Yes" branch is active — excluded from the denominator otherwise, so the
+  // "No" branch can still reach 100%.
+  const YES_BRANCH_REQUIRED_FIELD_NAMES = ['guru', 'lessons_learnt', 'years_experience'];
 
   function updateProgress() {
-    const filled = REQUIRED_FIELD_NAMES.filter((name) => {
+    const yesActive = !yesFields.classList.contains('hidden');
+    const activeNames = yesActive
+      ? [...BASE_REQUIRED_FIELD_NAMES, ...YES_BRANCH_REQUIRED_FIELD_NAMES]
+      : BASE_REQUIRED_FIELD_NAMES;
+
+    const filled = activeNames.filter((name) => {
       const field = form.elements[name];
       if (!field) return false;
       // form.elements[name] returns a RadioNodeList for ANY group of elements
@@ -152,7 +228,7 @@ function initBookingModal() {
       if (field.disabled) return false;
       return field.value.trim() !== '';
     }).length;
-    const pct = `${Math.round((filled / REQUIRED_FIELD_NAMES.length) * 100)}%`;
+    const pct = `${Math.round((filled / activeNames.length) * 100)}%`;
     progressFills.forEach((fill) => { fill.style.width = pct; });
   }
 
@@ -297,58 +373,5 @@ function initInstagramExitIntent() {
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) overlay.classList.remove('visible');
   });
-}
-
-/* ---------- Rotating corner social-proof toast ----------
-   Message content lives in js/message-popup.js (TESTIMONIAL_MESSAGES),
-   loaded before this file — see index.html.
-*/
-function initSocialProofToast() {
-  const toast = document.getElementById('social-toast');
-  const nameEl = toast.querySelector('.toast-name');
-  const msgEl = toast.querySelector('.toast-msg');
-  const avatarEl = toast.querySelector('.toast-avatar');
-  if (typeof TESTIMONIAL_MESSAGES === 'undefined' || !TESTIMONIAL_MESSAGES.length) return;
-
-  let index = 0;
-
-  // Clears the sticky nav header (~90px) and stays clear of the bottom edge,
-  // so the toast lands somewhere within whatever section is currently in view.
-  const HEADER_CLEARANCE = 100;
-  const BOTTOM_CLEARANCE = 140;
-
-  function positionRandomly() {
-    const maxTop = Math.max(HEADER_CLEARANCE, window.innerHeight - BOTTOM_CLEARANCE);
-    const top = Math.round(HEADER_CLEARANCE + Math.random() * (maxTop - HEADER_CLEARANCE));
-    toast.style.top = `${top}px`;
-    return top;
-  }
-
-  // Samples the element the toast is about to land on (using the resting
-  // top/left, not the current translated-offscreen position) so text stays
-  // legible whether it lands on a light or dark ("on-dark") section.
-  function updateContrastForBackground(top) {
-    const left = parseFloat(getComputedStyle(toast).left) || 24;
-    const el = document.elementFromPoint(left + 20, top + 20);
-    const isDark = !!(el && el.closest('.on-dark'));
-    toast.classList.toggle('on-dark-bg', isDark);
-  }
-
-  function showNext() {
-    const item = TESTIMONIAL_MESSAGES[index % TESTIMONIAL_MESSAGES.length];
-    nameEl.textContent = item.name;
-    msgEl.textContent = `"${item.msg}"`;
-    avatarEl.textContent = item.name.charAt(0).toUpperCase();
-
-    const top = positionRandomly();
-    updateContrastForBackground(top);
-    toast.classList.add('visible');
-    index++;
-
-    setTimeout(() => toast.classList.remove('visible'), 5000);
-  }
-
-  setTimeout(showNext, 1200);
-  setInterval(showNext, 13000);
 }
 
