@@ -38,6 +38,8 @@ body {
   position: relative;
 }
 
+body.no-scroll { overflow: hidden; }
+
 /* ===== Nataraja watermark — persistent classical page-marker =====
    Public-domain Chola bronze photo (Met Museum Open Access, no attribution
    required), duotoned to the site palette. Faded via CSS mask so it blends

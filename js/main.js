@@ -2,6 +2,18 @@
 // Nrityaam site interactions
 // ============================================
 
+// Shared by any modal: keeps the page behind a modal from scrolling while
+// it's open, without fighting a second modal that might also be open.
+let scrollLockCount = 0;
+function lockBodyScroll() {
+  scrollLockCount++;
+  document.body.classList.add('no-scroll');
+}
+function unlockBodyScroll() {
+  scrollLockCount = Math.max(0, scrollLockCount - 1);
+  if (scrollLockCount === 0) document.body.classList.remove('no-scroll');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   [initScrollProgress, initMobileNav, initFaqAccordion, initTestimonialCarousel, initBookingModal, initInstagramExitIntent].forEach((init) => {
     try {
@@ -177,6 +189,11 @@ function initBookingModal() {
   const progressFills = form ? form.querySelectorAll('.form-progress-fill') : [];
   const dobField = document.getElementById('f-dob');
   const contactField = document.getElementById('f-contact');
+  const emailField = document.getElementById('f-email');
+  const yearsField = document.getElementById('f-years');
+  const lettersOnlyFields = ['f-first-name', 'f-last-name', 'f-state', 'f-country']
+    .map((id) => document.getElementById(id))
+    .filter(Boolean);
   if (!overlay || !closeBtn || !form) return;
 
   // Auto-insert the dd.mm.yyyy separators as the user types digits.
@@ -193,6 +210,23 @@ function initBookingModal() {
     const hasPlus = contactField.value.trim().startsWith('+');
     const digits = contactField.value.replace(/\D/g, '');
     contactField.value = (hasPlus ? '+' : '') + digits;
+  });
+
+  // Block anything but letters and spaces from ever appearing.
+  lettersOnlyFields.forEach((field) => {
+    field.addEventListener('input', () => {
+      field.value = field.value.replace(/[^A-Za-z ]/g, '');
+    });
+  });
+
+  // Years of experience: digits only.
+  yearsField?.addEventListener('input', () => {
+    yearsField.value = yearsField.value.replace(/\D/g, '');
+  });
+
+  // Email addresses can't contain whitespace.
+  emailField?.addEventListener('input', () => {
+    emailField.value = emailField.value.replace(/\s/g, '');
   });
 
   // "reason" is a single logical field shared by both learnt_before branches —
@@ -262,10 +296,12 @@ function initBookingModal() {
 
   function openModal() {
     overlay.classList.add('visible');
+    lockBodyScroll();
   }
 
   function closeModal() {
     overlay.classList.remove('visible');
+    unlockBodyScroll();
     resetModal();
   }
 
@@ -353,25 +389,30 @@ function initInstagramExitIntent() {
 
   let shown = false;
 
+  function openIgModal() {
+    overlay.classList.add('visible');
+    lockBodyScroll();
+    shown = true;
+  }
+
+  function closeIgModal() {
+    overlay.classList.remove('visible');
+    unlockBodyScroll();
+  }
+
   document.addEventListener('mouseout', (e) => {
     if (shown) return;
-    if (e.clientY <= 0 && !e.relatedTarget) {
-      overlay.classList.add('visible');
-      shown = true;
-    }
+    if (e.clientY <= 0 && !e.relatedTarget) openIgModal();
   });
 
   // fallback for touch devices: show once after a delay
   setTimeout(() => {
-    if (!shown) {
-      overlay.classList.add('visible');
-      shown = true;
-    }
+    if (!shown) openIgModal();
   }, 45000);
 
-  closeBtn.addEventListener('click', () => overlay.classList.remove('visible'));
+  closeBtn.addEventListener('click', closeIgModal);
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.classList.remove('visible');
+    if (e.target === overlay) closeIgModal();
   });
 }
 
