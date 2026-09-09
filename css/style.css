@@ -1,19 +1,23 @@
 /* ============================================
    Nrityaam — School of Bharatanatyam
-   Palette: warm parchment base, rich burnt-sienna accent, deep espresso ink
+   Palette: sunlit beige/yellow base (~60%), emerald green sections (~30%),
+   golden accents (~10%) — burnt-sienna kept for buttons/CTAs only.
    ============================================ */
 
 :root {
-  --ivory: #F7EEE0;
-  --ivory-deep: #EEDDBE;
-  --beige: #E4C89C;
+  --ivory: #F8ECC3;
+  --ivory-deep: #EDD99A;
+  --beige: #E8CE93;
   --terracotta: #C4622B;
   --terracotta-deep: #9C4A1E;
   --terracotta-soft: #E3A874;
   --maroon: #5A2A1C;
   --maroon-deep: #241009;
   --gold: #C9A227;
-  --cream-white: #FFF9EF;
+  --gold-soft: #F0CE72;
+  --emerald: #1C6B4A;
+  --emerald-deep: #0E4430;
+  --cream-white: #FFF8DE;
   --ink-muted: #6E5A46;
   --success: #74874C;
 
@@ -208,7 +212,7 @@ section > .container { position: relative; z-index: 2; }
   position: sticky;
   top: 0;
   z-index: 200;
-  background: rgba(250, 243, 233, 0.9);
+  background: rgba(248, 236, 195, 0.9);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(74, 42, 30, 0.08);
 }
@@ -391,7 +395,7 @@ section > .container { position: relative; z-index: 2; }
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  background: var(--cream-white);
+  background: var(--gold-soft);
   border: 1px solid rgba(36,16,9,0.1);
   border-radius: 12px;
   padding: 20px 26px;
@@ -465,7 +469,7 @@ section > .container { position: relative; z-index: 2; }
 .proof-panel .block:last-child { margin-bottom: 0; }
 
 /* ===== Is This Class Right For You — NOT/IS comparison ===== */
-.fit-check { background: var(--maroon-deep); color: var(--ivory); }
+.fit-check { background: var(--emerald-deep); color: var(--ivory); }
 .fit-check .section-heading,
 .fit-check .eyebrow { color: var(--ivory); }
 
@@ -695,7 +699,7 @@ section > .container { position: relative; z-index: 2; }
 
 /* ===== Final CTA ===== */
 .final-cta {
-  background: var(--maroon-deep);
+  background: var(--emerald-deep);
   color: var(--ivory);
   text-align: center;
   padding: 100px 0;
@@ -730,7 +734,7 @@ section > .container { position: relative; z-index: 2; }
 
 /* ===== Footer ===== */
 .site-footer {
-  background: var(--maroon-deep);
+  background: var(--emerald-deep);
   color: rgba(250,243,233,0.7);
   padding: 24px 0;
   border-top: 1px solid rgba(255,255,255,0.08);
