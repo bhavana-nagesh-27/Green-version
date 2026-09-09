@@ -1,25 +1,24 @@
 /* ============================================
    Nrityaam — School of Bharatanatyam
-   Palette: sunlit beige/yellow base (~60%), emerald green sections (~30%),
-   golden accents (~10%) — burnt-sienna kept for buttons/CTAs only.
+   Palette: sunlit beige/yellow base (~60%), emerald green sections,
+   buttons and accents (~30%, sampled from the logo lockup), golden
+   accents (~10%).
    ============================================ */
 
 :root {
   --ivory: #F8ECC3;
   --ivory-deep: #EDD99A;
   --beige: #E8CE93;
-  --terracotta: #C4622B;
-  --terracotta-deep: #9C4A1E;
-  --terracotta-soft: #E3A874;
   --maroon: #5A2A1C;
   --maroon-deep: #241009;
   --gold: #C9A227;
   --gold-soft: #F0CE72;
-  --emerald: #1C6B4A;
-  --emerald-deep: #0E4430;
+  --emerald: #0C4C3B;
+  --emerald-deep: #083529;
+  --emerald-soft: #168D6D;
   --cream-white: #FFF8DE;
   --ink-muted: #6E5A46;
-  --success: #74874C;
+  --success: var(--emerald);
 
   --font-display: 'Cormorant Garamond', 'Georgia', serif;
   --font-body: 'Poppins', 'Helvetica Neue', sans-serif;
@@ -94,7 +93,7 @@ body.no-scroll { overflow: hidden; }
   left: 0;
   width: 0%;
   height: 3px;
-  background: linear-gradient(90deg, var(--terracotta-soft), var(--terracotta), var(--gold));
+  background: linear-gradient(90deg, var(--emerald-soft), var(--emerald), var(--gold));
   z-index: 1200;
   pointer-events: none;
 }
@@ -125,7 +124,7 @@ h1, h2, h3, h4 {
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--terracotta-deep);
+  color: var(--emerald-deep);
   margin-bottom: 14px;
 }
 
@@ -172,9 +171,9 @@ section > .container { position: relative; z-index: 2; }
 .btn:hover { transform: translateY(-2px); }
 
 .btn-primary {
-  background: linear-gradient(160deg, var(--terracotta), var(--terracotta-deep));
+  background: linear-gradient(160deg, var(--emerald), var(--emerald-deep));
   color: var(--cream-white);
-  box-shadow: 0 10px 24px rgba(156, 74, 30, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+  box-shadow: 0 10px 24px rgba(8, 53, 41, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.35);
 }
 
 .btn-primary::after {
@@ -191,7 +190,7 @@ section > .container { position: relative; z-index: 2; }
 }
 
 .btn-primary:hover {
-  box-shadow: 0 14px 30px rgba(156, 74, 30, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  box-shadow: 0 14px 30px rgba(8, 53, 41, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.4);
 }
 
 .btn-outline {
@@ -294,7 +293,7 @@ section > .container { position: relative; z-index: 2; }
   position: relative;
 }
 
-.nav-links a:hover { color: var(--terracotta-deep); }
+.nav-links a:hover { color: var(--emerald-deep); }
 
 .nav-toggle {
   display: none;
@@ -370,7 +369,7 @@ section > .container { position: relative; z-index: 2; }
 }
 
 .highlight {
-  color: var(--terracotta);
+  color: var(--emerald);
   font-style: italic;
 }
 
@@ -408,7 +407,7 @@ section > .container { position: relative; z-index: 2; }
 .hero-tile b {
   font-family: var(--font-display);
   font-size: clamp(1.3rem, 2.4vw, 1.6rem);
-  color: var(--terracotta);
+  color: var(--emerald);
 }
 
 .hero-tile span:last-child {
@@ -451,7 +450,7 @@ section > .container { position: relative; z-index: 2; }
 .proof-panel h4 {
   font-size: clamp(0.95rem, 1.7vw, 1.1rem);
   margin-bottom: 10px;
-  color: var(--terracotta-deep);
+  color: var(--emerald-deep);
   font-family: var(--font-body);
   font-weight: 700;
 }
@@ -463,7 +462,7 @@ section > .container { position: relative; z-index: 2; }
 }
 
 .proof-panel .qual-list { margin: 10px 0 24px 4px; }
-.proof-panel .qual-list li::before { content: '✦ '; color: var(--terracotta); }
+.proof-panel .qual-list li::before { content: '✦ '; color: var(--emerald); }
 
 .proof-panel .block { margin-bottom: 24px; }
 .proof-panel .block:last-child { margin-bottom: 0; }
@@ -491,7 +490,7 @@ section > .container { position: relative; z-index: 2; }
 
 .fit-card.not-for {
   background: rgba(255,255,255,0.03);
-  border: 1.5px solid rgba(196,98,43,0.4);
+  border: 1.5px solid rgba(255,255,255,0.18);
 }
 
 .fit-card.is-for {
@@ -537,7 +536,7 @@ section > .container { position: relative; z-index: 2; }
 }
 
 .testimonial-track::-webkit-scrollbar { height: 6px; }
-.testimonial-track::-webkit-scrollbar-thumb { background: var(--terracotta-soft); border-radius: 6px; }
+.testimonial-track::-webkit-scrollbar-thumb { background: var(--emerald-soft); border-radius: 6px; }
 
 .testimonial-nav {
   display: flex;
@@ -559,8 +558,8 @@ section > .container { position: relative; z-index: 2; }
 }
 
 .carousel-btn:hover {
-  background: var(--terracotta);
-  border-color: var(--terracotta);
+  background: var(--emerald);
+  border-color: var(--emerald);
   color: var(--cream-white);
 }
 
@@ -570,7 +569,7 @@ section > .container { position: relative; z-index: 2; }
   border-radius: var(--radius);
   overflow: hidden;
   background:
-    linear-gradient(165deg, rgba(36,16,9,0.8), rgba(196,98,43,0.45)),
+    linear-gradient(165deg, rgba(36,16,9,0.8), rgba(12,76,59,0.45)),
     linear-gradient(160deg, #6b3a26, #2c160d);
   aspect-ratio: 4/5;
   position: relative;
@@ -678,7 +677,7 @@ section > .container { position: relative; z-index: 2; }
 
 .faq-item .faq-toggle {
   font-size: clamp(1.05rem, 2vw, 1.3rem);
-  color: var(--terracotta);
+  color: var(--emerald);
   transition: transform 0.25s ease;
 }
 
@@ -761,7 +760,7 @@ section > .container { position: relative; z-index: 2; }
 }
 
 .footer-instagram:hover {
-  border-color: var(--terracotta-soft);
+  border-color: var(--emerald-soft);
   background: rgba(255,255,255,0.05);
 }
 
@@ -860,7 +859,7 @@ html {
 .form-progress-fill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, var(--terracotta-soft), var(--terracotta));
+  background: linear-gradient(90deg, var(--emerald-soft), var(--emerald));
   border-radius: 999px;
   transition: width 0.3s ease;
 }
@@ -927,7 +926,7 @@ html {
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: var(--terracotta);
+  border-color: var(--emerald);
 }
 
 .form-group textarea { resize: vertical; }
@@ -944,14 +943,14 @@ html {
   cursor: pointer;
 }
 
-.radio-option input { accent-color: var(--terracotta); width: 17px; height: 17px; }
+.radio-option input { accent-color: var(--emerald); width: 17px; height: 17px; }
 
 .conditional-fields {
   display: flex;
   flex-direction: column;
   gap: 16px;
   padding: 16px;
-  border-left: 3px solid var(--terracotta-soft);
+  border-left: 3px solid var(--emerald-soft);
   background: var(--ivory);
   border-radius: 0 10px 10px 0;
 }
