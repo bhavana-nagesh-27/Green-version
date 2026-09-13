@@ -157,18 +157,54 @@ function initFaqAccordion() {
 
 /* ---------- Mentor section photo slideshow ----------
    The frame stays put (left column, fixed position); only which image is
-   visible changes, crossfading to the next one every 3 seconds.
+   visible changes, crossfading to the next one every 3 seconds and
+   looping back to the first after the last. Dot indicators are built
+   from the actual image count rather than hardcoded, and clicking one
+   jumps straight to that slide; hovering the frame pauses autoplay.
 */
 function initMentorSlideshow() {
+  const frame = document.getElementById('mentor-photo');
   const photos = document.querySelectorAll('#mentor-photo img');
-  if (photos.length < 2) return;
+  const dotsWrap = document.getElementById('mentor-photo-dots');
+  if (!frame || photos.length < 2) return;
 
   let index = 0;
-  setInterval(() => {
+  let timer = null;
+
+  const dots = Array.from(photos).map((_, i) => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'mentor-photo-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', `Show photo ${i + 1}`);
+    dot.addEventListener('click', () => {
+      goTo(i);
+      stop();
+      start();
+    });
+    dotsWrap.appendChild(dot);
+    return dot;
+  });
+
+  function goTo(next) {
     photos[index].classList.remove('active');
-    index = (index + 1) % photos.length;
+    dots[index].classList.remove('active');
+    index = next;
     photos[index].classList.add('active');
-  }, 3000);
+    dots[index].classList.add('active');
+  }
+
+  function start() {
+    timer = setInterval(() => goTo((index + 1) % photos.length), 3000);
+  }
+
+  function stop() {
+    clearInterval(timer);
+  }
+
+  frame.addEventListener('mouseenter', stop);
+  frame.addEventListener('mouseleave', start);
+
+  start();
 }
 
 /* ---------- Booking / application modal ----------
