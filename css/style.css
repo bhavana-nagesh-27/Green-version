@@ -291,8 +291,10 @@ section > .container { position: relative; z-index: 2; }
   font-family: var(--font-display);
   font-size: clamp(1.7rem, 3.2vw, 2.1rem);
   font-weight: 700;
-  color: var(--cream-100);
-  -webkit-text-stroke: 0.6px var(--cream-100);
+  background: linear-gradient(180deg, var(--gold-300), var(--gold-500));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .logo-line2 {
@@ -743,6 +745,7 @@ section > .container { position: relative; z-index: 2; }
   z-index: 2;
   padding: 18px;
   width: 100%;
+  text-align: center;
   background: linear-gradient(to top, rgba(7,31,23,0.75), transparent);
 }
 
