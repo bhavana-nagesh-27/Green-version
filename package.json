@@ -1,0 +1,12 @@
+{
+  "name": "nrityaam-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nrityaam — School of Bharatanatyam. Static marketing and enrollment website for founder Ranbbir Banerjee's online Bharatanatyam academy.",
+  "homepage": "https://www.ranbbirbanerjee.com/",
+  "scripts": {
+    "start": "python3 -m http.server 8743"
+  },
+  "author": "",
+  "license": "UNLICENSED"
+}
