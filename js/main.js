@@ -164,12 +164,19 @@ function initFaqAccordion() {
    account or backend code needed.
 
    First submission to a new destination email requires a one-time opt-in:
-   FormSubmit sends banerjeeranbir32@gmail.com a confirmation email the first
-   time a submission is attempted, and every submission before that click
-   is silently held rather than delivered. After activating, submissions
-   are emailed there directly.
+   FormSubmit sends students@ranbbirbanerjee.com a confirmation email the
+   first time a submission is attempted, and every submission before that
+   click is silently held rather than delivered. After activating,
+   submissions are emailed there directly.
+
+   Submitted as multipart/form-data (via FormData) rather than JSON so a
+   client-built CSV of the answers can ride along as a real file attachment
+   — FormSubmit forwards any file-valued field in a multipart POST to its
+   AJAX endpoint the same way it does for a plain <input type="file">,
+   regardless of whether the value came from user-picked file or a
+   synthesized Blob; the request is indistinguishable at the HTTP level.
 */
-const FORM_ENDPOINT = 'https://formsubmit.co/ajax/banerjeeranbir32@gmail.com';
+const FORM_ENDPOINT = 'https://formsubmit.co/ajax/students@ranbbirbanerjee.com';
 function initBookingModal() {
   const overlay = document.getElementById('booking-modal-overlay');
   const closeBtn = document.getElementById('booking-modal-close');
@@ -344,6 +351,28 @@ function initBookingModal() {
   form.addEventListener('input', updateProgress);
   form.addEventListener('change', updateProgress);
 
+  // Builds a one-row CSV of the submitted answers so the application arrives
+  // as a structured attachment, not just inline text/JSON. Columns are fixed
+  // (rather than derived from whatever keys happen to be in `data`) so the
+  // header is stable and readable regardless of which learnt_before branch
+  // was active; columns whose field wasn't part of this submission (e.g.
+  // guru/lessons_learnt/years_experience on the "No" branch) are simply
+  // left blank rather than omitted, so every export has the same shape.
+  const CSV_COLUMNS = [
+    'first_name', 'last_name', 'email', 'dob', 'state', 'country',
+    'contact_number', 'instagram_id', 'learnt_before', 'guru',
+    'lessons_learnt', 'years_experience', 'reason',
+  ];
+  function escapeCsvValue(value) {
+    const str = String(value ?? '');
+    return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+  }
+  function buildApplicationCsv(data) {
+    const header = CSV_COLUMNS.join(',');
+    const row = CSV_COLUMNS.map((name) => escapeCsvValue(data[name])).join(',');
+    return `${header}\n${row}\n`;
+  }
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (!form.reportValidity()) return;
@@ -353,10 +382,18 @@ function initBookingModal() {
     submitBtn.textContent = 'Submitting…';
 
     const data = Object.fromEntries(new FormData(form).entries());
+
+    // Sent as FormData (multipart/form-data), not JSON, so the CSV blob below
+    // can travel as a real file attachment — no Content-Type header is set
+    // manually so the browser fills in the multipart boundary itself.
+    const payload = new FormData();
+    payload.append('attachment', new Blob([buildApplicationCsv(data)], { type: 'text/csv' }), 'application.csv');
+    Object.entries(data).forEach(([key, value]) => payload.append(key, value));
+
     fetch(FORM_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(data),
+      headers: { 'Accept': 'application/json' },
+      body: payload,
     })
       .then((res) => {
         if (!res.ok) throw new Error(`FormSubmit responded ${res.status}`);
