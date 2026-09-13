@@ -459,6 +459,49 @@ section > .container { position: relative; z-index: 2; }
   color: var(--gold-700);
 }
 
+/* Self-scrolling performance-photo strip — a duplicated image track slides
+   left in a continuous loop (translateX 0 to -50%, since the track holds
+   two back-to-back copies of the same 5 photos), so it reads as an
+   infinite marquee with no visible seam or reset jump. */
+.mentor-gallery {
+  overflow: hidden;
+  margin: 40px auto 0;
+  max-width: 100%;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+
+.mentor-gallery-track {
+  display: flex;
+  gap: 18px;
+  width: max-content;
+  animation: mentor-gallery-scroll 32s linear infinite;
+}
+
+.mentor-gallery-track img {
+  height: 260px;
+  width: auto;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 2px solid var(--gold-300);
+  box-shadow: var(--shadow-soft);
+  flex-shrink: 0;
+}
+
+@keyframes mentor-gallery-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mentor-gallery-track { animation: none; }
+}
+
+@media (max-width: 600px) {
+  .mentor-gallery-track img { height: 190px; }
+}
+
 .credibility-grid {
   display: grid;
   grid-template-columns: 1fr;
