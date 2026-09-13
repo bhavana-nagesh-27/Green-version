@@ -15,7 +15,7 @@ function unlockBodyScroll() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  [initScrollProgress, initMobileNav, initFaqAccordion, initTestimonialCarousel, initBookingModal, initInstagramExitIntent].forEach((init) => {
+  [initScrollProgress, initMobileNav, initFaqAccordion, initTestimonialCarousel, initMentorSlideshow, initBookingModal, initInstagramExitIntent].forEach((init) => {
     try {
       init();
     } catch (err) {
@@ -153,6 +153,22 @@ function initFaqAccordion() {
       if (!isOpen) item.classList.add('open');
     });
   });
+}
+
+/* ---------- Mentor section photo slideshow ----------
+   The frame stays put (left column, fixed position); only which image is
+   visible changes, crossfading to the next one every 3 seconds.
+*/
+function initMentorSlideshow() {
+  const photos = document.querySelectorAll('#mentor-photo img');
+  if (photos.length < 2) return;
+
+  let index = 0;
+  setInterval(() => {
+    photos[index].classList.remove('active');
+    index = (index + 1) % photos.length;
+    photos[index].classList.add('active');
+  }, 3000);
 }
 
 /* ---------- Booking / application modal ----------

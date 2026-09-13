@@ -459,55 +459,48 @@ section > .container { position: relative; z-index: 2; }
   color: var(--gold-700);
 }
 
-/* Self-scrolling performance-photo strip — a duplicated image track slides
-   left in a continuous loop (translateX 0 to -50%, since the track holds
-   two back-to-back copies of the same 5 photos), so it reads as an
-   infinite marquee with no visible seam or reset jump. */
-.mentor-gallery {
-  overflow: hidden;
-  margin: 40px auto 0;
-  max-width: 100%;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+/* Two-column layout: a fixed-position photo slot on the left, bio panel on
+   the right. The photo itself never moves — only which image is visible
+   changes, via a plain crossfade cycling on a timer (initMentorSlideshow()
+   in main.js), so "static position" and "moves by itself" both hold at
+   once: the frame is still, the picture inside it isn't. */
+.mentor-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 380px) 1fr;
+  gap: 48px;
+  align-items: start;
+  max-width: 980px;
+  margin: 50px auto 0;
 }
 
-.mentor-gallery-track {
-  display: flex;
-  gap: 18px;
-  width: max-content;
-  animation: mentor-gallery-scroll 32s linear infinite;
+@media (max-width: 860px) {
+  .mentor-grid { grid-template-columns: 1fr; max-width: 560px; }
 }
 
-.mentor-gallery-track img {
-  height: 260px;
-  width: auto;
+.mentor-photo {
+  position: relative;
+  width: 100%;
   aspect-ratio: 2/3;
-  object-fit: cover;
   border-radius: var(--radius);
+  overflow: hidden;
   border: 2px solid var(--gold-300);
   box-shadow: var(--shadow-soft);
-  flex-shrink: 0;
 }
 
-@keyframes mentor-gallery-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+.mentor-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1s ease;
 }
+
+.mentor-photo img.active { opacity: 1; }
 
 @media (prefers-reduced-motion: reduce) {
-  .mentor-gallery-track { animation: none; }
-}
-
-@media (max-width: 600px) {
-  .mentor-gallery-track img { height: 190px; }
-}
-
-.credibility-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  max-width: 780px;
-  margin-left: auto;
-  margin-right: auto;
+  .mentor-photo img { transition: none; }
 }
 
 .proof-panel {
