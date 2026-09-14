@@ -221,16 +221,14 @@ function initMentorSlideshow() {
    click is silently held rather than delivered. After activating,
    submissions are emailed there directly.
 
-   Sent as JSON, not multipart/form-data — an earlier version attached the
-   CSV below as a real file (multipart POST with a Blob field), which
-   FormSubmit's AJAX endpoint accepted and returned a success response for,
-   but never actually delivered in practice (confirmed by real-world testing
-   after activation: no emails arrived). FormSubmit's documented file-upload
-   support is written entirely in terms of a real <input type="file"> in a
-   traditional form post, not the /ajax/ endpoint, so this wasn't a
-   documented/guaranteed feature. The CSV is instead embedded as one more
-   plain JSON field (added last, so it lands at the end of the emailed
-   field list) — same reliable delivery path as every other field.
+   Sent as JSON, not multipart/form-data — an earlier version submitted a
+   file attachment via multipart POST, which FormSubmit's AJAX endpoint
+   accepted and returned a success response for, but never actually
+   delivered in practice (confirmed by real-world testing after activation:
+   no emails arrived). FormSubmit's documented file-upload support is
+   written entirely in terms of a real <input type="file"> in a traditional
+   form post, not the /ajax/ endpoint, so this wasn't a documented/
+   guaranteed feature. Plain JSON is the reliable delivery path.
 */
 const FORM_ENDPOINT = 'https://formsubmit.co/ajax/students@ranbbirbanerjee.com';
 function initBookingModal() {
@@ -407,29 +405,6 @@ function initBookingModal() {
   form.addEventListener('input', updateProgress);
   form.addEventListener('change', updateProgress);
 
-  // Builds a one-row CSV of the submitted answers so a structured record is
-  // embedded in the email, not just the plain field-by-field summary.
-  // Columns are fixed (rather than derived from whatever keys happen to be
-  // in `data`) so the header is stable and readable regardless of which
-  // learnt_before branch was active; columns whose field wasn't part of
-  // this submission (e.g. guru/lessons_learnt/years_experience on the "No"
-  // branch) are simply left blank rather than omitted, so every export has
-  // the same shape.
-  const CSV_COLUMNS = [
-    'first_name', 'last_name', 'email', 'dob', 'state', 'country',
-    'contact_number', 'instagram_id', 'learnt_before', 'guru',
-    'lessons_learnt', 'years_experience', 'reason',
-  ];
-  function escapeCsvValue(value) {
-    const str = String(value ?? '');
-    return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
-  }
-  function buildApplicationCsv(data) {
-    const header = CSV_COLUMNS.join(',');
-    const row = CSV_COLUMNS.map((name) => escapeCsvValue(data[name])).join(',');
-    return `${header}\n${row}\n`;
-  }
-
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (!form.reportValidity()) return;
@@ -439,9 +414,6 @@ function initBookingModal() {
     submitBtn.textContent = 'Submitting…';
 
     const data = Object.fromEntries(new FormData(form).entries());
-    // Appended last (own key, after spreading the real fields) so it renders
-    // as the final row FormSubmit lists in the email body.
-    data.csv_summary = buildApplicationCsv(data);
 
     fetch(FORM_ENDPOINT, {
       method: 'POST',
