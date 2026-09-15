@@ -469,13 +469,6 @@ section > .container { position: relative; z-index: 2; }
 
 .hero-tile:hover { transform: translateY(-4px); }
 
-.hero-tile-icon {
-  display: inline-flex;
-  width: clamp(28px, 3.4vw, 34px);
-  height: clamp(28px, 3.4vw, 34px);
-}
-.hero-tile-icon svg { width: 100%; height: 100%; }
-
 .hero-tile b {
   font-family: var(--font-numeral);
   font-weight: 700;
