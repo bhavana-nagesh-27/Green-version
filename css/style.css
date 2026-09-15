@@ -228,6 +228,15 @@ section > .container { position: relative; z-index: 2; }
   box-shadow: 0 10px 22px rgba(167, 123, 34, 0.4), 0 0 0 2px rgba(231, 205, 134, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.45);
 }
 
+/* The booking form's "Next" button sits directly on the cream modal
+   background, where the gold drop-shadow reads as a blurry halo rather
+   than a lift — dropped for this button only, other .btn-primary
+   buttons (Submit, Book a 1:1 Call) keep theirs. */
+#step1-next,
+#step1-next:hover {
+  box-shadow: none;
+}
+
 .btn-outline {
   background: transparent;
   border: 1.5px solid var(--cream-100);
