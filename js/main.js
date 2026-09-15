@@ -15,7 +15,7 @@ function unlockBodyScroll() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  [initScrollProgress, initMobileNav, initFaqAccordion, initTestimonialCarousel, initMentorSlideshow, initBookingModal, initInstagramExitIntent].forEach((init) => {
+  [initScrollProgress, initMobileNav, initFaqAccordion, initTestimonialCarousel, initMentorSlideshow, initScrollReveal, initBookingModal, initInstagramExitIntent].forEach((init) => {
     try {
       init();
     } catch (err) {
@@ -153,6 +153,29 @@ function initFaqAccordion() {
       if (!isOpen) item.classList.add('open');
     });
   });
+}
+
+/* ---------- Scroll-reveal fade/rise-in ----------
+   Tags section content, FAQ items, and hero tiles with .reveal, then a
+   single shared IntersectionObserver flips each one to .in as it enters
+   the viewport. One observer for every element, not one per element.
+*/
+function initScrollReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const targets = document.querySelectorAll('section .container > *, .faq-item, .hero-tile');
+  targets.forEach((el) => el.classList.add('reveal'));
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  targets.forEach((el) => observer.observe(el));
 }
 
 /* ---------- Mentor section photo slideshow ----------
