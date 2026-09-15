@@ -228,6 +228,26 @@ function initMentorSlideshow() {
   frame.addEventListener('mouseleave', start);
 
   start();
+
+  // Subtle 3D tilt that follows the cursor, reinforcing the photo's own
+  // studio-lit depth (baked-in backdrop + ground shadow) with an actual
+  // perspective response. Skipped for touch/reduced-motion so it never
+  // fights a tap-to-scroll gesture on mobile.
+  const canTilt = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (canTilt) {
+    frame.style.transformStyle = 'preserve-3d';
+    frame.addEventListener('mousemove', (e) => {
+      const rect = frame.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width - 0.5;
+      const py = (e.clientY - rect.top) / rect.height - 0.5;
+      frame.style.transform = `perspective(900px) rotateY(${px * 10}deg) rotateX(${-py * 10}deg)`;
+    });
+    frame.addEventListener('mouseleave', () => {
+      frame.style.transform = 'perspective(900px) rotateY(0deg) rotateX(0deg)';
+    });
+  }
 }
 
 /* ---------- Booking / application modal ----------
